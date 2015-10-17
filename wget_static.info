@@ -1,1 +1,3 @@
-name = Wget Static HTML Generate and Save
+name = Wget Static HTML generate and save
+description = Generates Static html using wget to download/save at remote server
+core = 7.x
