@@ -21,6 +21,13 @@ function wget_static_config_form($form, &$form_state) {
     );
   }
 
+  $form['wget_static_usage'] = array(
+    '#markup' => t('To use Wget Static Module use following urls: <br>
+      a) For NODE - wget_static/node <br>
+      b) For PATH - wget_static/path <br>
+      c) For WEBSITE - wget_static/website <br>'),
+  );
+
   $form['wget_static_content_tab_title'] = array(
     '#type' => 'textfield',
     '#title' => 'Wget Static form Content Selection Tab Title',
@@ -77,7 +84,7 @@ function wget_static_config_form($form, &$form_state) {
   $form['wget_static_enable_wget_log'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Wget debug mode'),
-    '#description' => t('When enabled, wget will write logs to dblog each time it urns. Used for developer purpose only.'),
+    '#description' => t('When enabled, wget will write logs to dblog each time it operates. Used for developer purpose only.'),
     '#default_value' => variable_get('wget_static_enable_wget_log', FALSE),
   );
 
