@@ -11,7 +11,7 @@ function wget_static_requirements($phase) {
   $requirements = array();
 
   if ($phase == 'install') {
-     // Shell Execution access.
+    // Shell Execution access.
     $shell_exec = _wget_static_isenabled('shell_exec');
     $requirements['shell_exec'] = array(
       'title' => t('Shell Execution Access'),
@@ -51,7 +51,7 @@ function wget_static_requirements($phase) {
  * Helping function to check if server allows the command.
  */
 function _wget_static_isenabled($func) {
-    return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
+  return is_callable($func) && FALSE === stripos(ini_get('disable_functions'), $func);
 }
 
 /**
