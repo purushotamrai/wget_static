@@ -9,14 +9,16 @@
  */
 function wget_static_requirements($phase) {
   $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
 
   if ($phase == 'install') {
     // Shell Execution access.
     $shell_exec = _wget_static_isenabled('shell_exec');
     $requirements['shell_exec'] = array(
-      'title' => t('Shell Execution Access'),
+      'title' => $t('Shell Execution Access'),
       'value' => $shell_exec,
-      'description' => t('Wget Static module needs access to shell_exec() php function.'),
+      'description' => $t('Wget Static module needs access to shell_exec() php function.'),
     );
     if (!$shell_exec) {
       $requirements['shell_exec']['severity'] = REQUIREMENT_ERROR;
@@ -30,17 +32,17 @@ function wget_static_requirements($phase) {
     // Wget command access.
     $wget = shell_exec('which wget') ? TRUE : FALSE;
     $requirements['wget'] = array(
-      'title' => t('Wget Commandline Access'),
-      'description' => t('Wget Static module needs commandline access to wget application.'),
+      'title' => $t('Wget Commandline Access'),
+      'description' => $t('Wget Static module needs commandline access to wget application.'),
     );
     if (!$wget) {
       variable_set('wget_static_cmd_availability', FALSE);
       $requirements['wget']['severity'] = REQUIREMENT_WARNING;
-      $requirements['wget']['value'] = t('Command Disabled for Web User');
+      $requirements['wget']['value'] = $t('Command Disabled for Web User');
     }
     else {
       $requirements['wget']['severity'] = REQUIREMENT_OK;
-      $requirements['wget']['value'] = t('Enabled');
+      $requirements['wget']['value'] = $t('Enabled');
     }
   }
 
@@ -68,5 +70,4 @@ function wget_static_uninstall() {
   variable_del('wget_static_success_message');
   variable_del('wget_static_success_redirect');
   variable_del('wget_static_enable_wget_log');
-
 }

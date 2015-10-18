@@ -714,7 +714,7 @@ function _wget_static_generate_static_html($temp_dir, $wget_dir, $form_state) {
 function _wget_static_create_archive($temp_dir, $wget_dir, $filename, $timestamp, $download = FALSE) {
   // Load class.
   include_once "zip/recursiveZip.php";
-  $zip = new RecursiveZip();
+  $zip = new WgetStaticRecursiveZip();
   $filename = preg_replace('/[^\p{L}\p{N}\-\_]/', '', $filename);
   $filename = ($filename) ? $filename . '.zip' : $timestamp . '.zip';
   $filepath = $zip->compress($temp_dir . "/" . $wget_dir, $temp_dir . "/wget/", $filename);
@@ -740,7 +740,7 @@ function _wget_static_savetoftp($temp_dir, $wget_dir, $form_state, $timestamp) {
   include_once 'ftp/ftp_class.php';
 
   // *** Create the FTP object.
-  $ftpobj = new FTPClient();
+  $ftpobj = new WgetStaticFTPClient();
   // *** Connect.
   if (!$ftpobj->connect($form_state['values']['host'], $form_state['values']['username'], $form_state['values']['password'], TRUE)) {
     drupal_set_message(t('Failed to connect to FTP server'), 'error', FALSE);

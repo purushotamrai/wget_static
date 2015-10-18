@@ -7,7 +7,7 @@
 /**
  * Recursivezip class.
  */
-class RecursiveZip {
+class WgetStaticRecursiveZip {
   /**
    * Recursively reads a directory and compress files.
    */

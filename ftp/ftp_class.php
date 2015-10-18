@@ -7,7 +7,7 @@
 /**
  * FTP Client Class.
  */
-class FTPClient {
+class WgetStaticFTPClient {
   private $connectionId;
   private $loginOk = FALSE;
   private $messageArray = array();
@@ -68,8 +68,8 @@ class FTPClient {
    */
   public function makeDir($directory) {
     // Removing existing directory.
-    if (ftp_directory_exists($this->connectionId, $directory)) {
-      if (!ftp_rmdirr($this->connectionId, $directory)) {
+    if (_wget_static_ftp_directory_exists($this->connectionId, $directory)) {
+      if (!_wget_static_ftp_rmdirr($this->connectionId, $directory)) {
         $this->logMessage('Directory "' . $directory . '"could not be deleted on remote server.');
         return FALSE;
       }
@@ -141,7 +141,7 @@ class FTPClient {
         }
         else {
           // Put the files.
-          $upload = ftp_put($this->connectionId, $dst_dir . "/" . $file, $src_dir . "/" . $file, FTP_BINARY);
+          ftp_put($this->connectionId, $dst_dir . "/" . $file, $src_dir . "/" . $file, FTP_BINARY);
         }
       }
     }
@@ -154,7 +154,7 @@ class FTPClient {
 /**
  * Verifies if directory exists or not.
  */
-function ftp_directory_exists($ftp, $dir) {
+function _wget_static_ftp_directory_exists($ftp, $dir) {
   // Get the current working directory.
   $origin = ftp_pwd($ftp);
 
@@ -172,14 +172,13 @@ function ftp_directory_exists($ftp, $dir) {
 /**
  * Recursively delete the files in a directory via FTP.
  */
-function ftp_rmdirr($ftp_stream, $directory) {
+function _wget_static_ftp_rmdirr($ftp_stream, $directory) {
   // Sanity check.
   if (!is_resource($ftp_stream) || get_resource_type($ftp_stream) !== 'FTP Buffer') {
     return FALSE;
   }
 
   // Init.
-  $i             = 0;
   $files         = array();
   $folders       = array();
   $statusnext    = FALSE;
