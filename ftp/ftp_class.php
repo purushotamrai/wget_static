@@ -8,9 +8,9 @@
  * FTP Client Class.
  */
 class WgetStaticFTPClient {
-  private $connectionId;
-  private $loginOk = FALSE;
-  private $messageArray = array();
+  private $connectionid;
+  private $loginok = FALSE;
+  private $messagearray = array();
 
   /**
    * Constructor.
@@ -21,44 +21,44 @@ class WgetStaticFTPClient {
    * Deconstructor.
    */
   public function __destruct() {
-    if ($this->connectionId) {
-      ftp_close($this->connectionId);
+    if ($this->connectionid) {
+      ftp_close($this->connectionid);
     }
   }
 
   /**
    * Message logger.
    */
-  private function logMessage($message) {
-    $this->messageArray[] = $message;
+  private function logmessage($message) {
+    $this->messagearray[] = $message;
   }
 
   /**
    * Returns Logged messages.
    */
-  public function getMessages() {
-    return $this->messageArray;
+  public function getmessages() {
+    return $this->messagearray;
   }
 
   /**
    * For establishing connection.
    */
-  public function connect($server, $ftpUser, $ftpPassword, $isPassive = FALSE) {
+  public function connect($server, $ftpuser, $ftppassword, $ispassive = FALSE) {
     // *** Set up basic connection.
-    $this->connectionId = ftp_connect($server);
+    $this->connectionid = ftp_connect($server);
     // *** Login with username and password.
-    $loginResult = ftp_login($this->connectionId, $ftpUser, $ftpPassword);
+    $loginresult = ftp_login($this->connectionid, $ftpuser, $ftppassword);
     // *** Sets passive mode on/off (default off).
-    ftp_pasv($this->connectionId, $isPassive);
+    ftp_pasv($this->connectionid, $ispassive);
     // *** Check connection.
-    if ((!$this->connectionId) || (!$loginResult)) {
-      $this->logMessage('FTP connection has failed!');
-      $this->logMessage('Attempted to connect to ' . $server . ' for user ' . $ftpUser, TRUE);
+    if ((!$this->connectionid) || (!$loginresult)) {
+      $this->logmessage('FTP connection has failed!');
+      $this->logmessage('Attempted to connect to ' . $server . ' for user ' . $ftpuser, TRUE);
       return FALSE;
     }
     else {
-      $this->logMessage('Connected to ' . $server . ', for user ' . $ftpUser);
-      $this->loginOk = TRUE;
+      $this->logmessage('Connected to ' . $server . ', for user ' . $ftpuser);
+      $this->loginok = TRUE;
       return TRUE;
     }
   }
@@ -66,23 +66,23 @@ class WgetStaticFTPClient {
   /**
    * For creating fresh directory.
    */
-  public function makeDir($directory) {
+  public function makedir($directory) {
     // Removing existing directory.
-    if (_wget_static_ftp_directory_exists($this->connectionId, $directory)) {
-      if (!_wget_static_ftp_rmdirr($this->connectionId, $directory)) {
-        $this->logMessage('Directory "' . $directory . '"could not be deleted on remote server.');
+    if (_wget_static_ftp_directory_exists($this->connectionid, $directory)) {
+      if (!_wget_static_ftp_rmdirr($this->connectionid, $directory)) {
+        $this->logmessage('Directory "' . $directory . '"could not be deleted on remote server.');
         return FALSE;
       }
     }
 
     // *** If creating a directory is successful.
-    if (ftp_mkdir($this->connectionId, $directory)) {
-      $this->logMessage('Directory "' . $directory . '" created successfully');
+    if (ftp_mkdir($this->connectionid, $directory)) {
+      $this->logmessage('Directory "' . $directory . '" created successfully');
       return TRUE;
     }
     else {
       // *** ...Else, FAIL.
-      $this->logMessage('Failed creating directory "' . $directory . '"');
+      $this->logmessage('Failed creating directory "' . $directory . '"');
       return FALSE;
     }
 
@@ -91,12 +91,12 @@ class WgetStaticFTPClient {
   /**
    * To upload single file.
    */
-  public function uploadFile($fileFrom, $fileTo) {
+  public function uploadfile($filefrom, $fileto) {
     // *** Set the transfer mode.
-    $asciiArray = array('txt', 'csv', 'html', 'css', 'zip');
-    $temp_array = explode('.', $fileFrom);
+    $$asciiarray = array('txt', 'csv', 'html', 'css', 'zip');
+    $temp_array = explode('.', $filefrom);
     $extension = end($temp_array);
-    if (in_array($extension, $asciiArray)) {
+    if (in_array($extension, $$asciiarray)) {
       $mode = FTP_ASCII;
     }
     else {
@@ -104,18 +104,18 @@ class WgetStaticFTPClient {
     }
 
     // Turn passive mode on.
-    ftp_pasv($this->connectionId, TRUE);
+    ftp_pasv($this->connectionid, TRUE);
 
     // *** Upload the file.
-    $upload = ftp_put($this->connectionId, $fileTo, $fileFrom, $mode);
+    $upload = ftp_put($this->connectionid, $fileto, $filefrom, $mode);
 
     // *** Check upload status.
     if (!$upload) {
-      $this->logMessage('FTP upload has failed!');
+      $this->logmessage('FTP upload has failed!');
       return FALSE;
     }
     else {
-      $this->logMessage('Uploaded "' . $fileFrom . '" as "' . $fileTo);
+      $this->logmessage('Uploaded "' . $filefrom . '" as "' . $fileto);
       return TRUE;
     }
   }
@@ -123,8 +123,8 @@ class WgetStaticFTPClient {
   /**
    * Uploads whole directory to remote server.
    */
-  public function ftp_putAll($src_dir, $dst_dir) {
-    $conn_id = $this->connectionId;
+  public function ftpputall($src_dir, $dst_dir) {
+    $conn_id = $this->connectionid;
     $d = dir($src_dir);
     while ($file = $d->read()) {
       // Do this for each file in the directory.
@@ -137,11 +137,11 @@ class WgetStaticFTPClient {
             ftp_mkdir($conn_id, $dst_dir . "/" . $file);
           }
           // Recursive part.
-          ftp_putAll($conn_id, $src_dir . "/" . $file, $dst_dir . "/" . $file);
+          ftpputall($conn_id, $src_dir . "/" . $file, $dst_dir . "/" . $file);
         }
         else {
           // Put the files.
-          ftp_put($this->connectionId, $dst_dir . "/" . $file, $src_dir . "/" . $file, FTP_BINARY);
+          ftp_put($this->connectionid, $dst_dir . "/" . $file, $src_dir . "/" . $file, FTP_BINARY);
         }
       }
     }

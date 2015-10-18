@@ -749,7 +749,7 @@ function _wget_static_savetoftp($temp_dir, $wget_dir, $form_state, $timestamp) {
   // *** Make fresh directory.
   $folder = preg_replace("/[^\p{L}\p{N}\-\_]/", "", $form_state['values']['location']);
   if ($folder) {
-    if (!$ftpobj->makeDir($folder)) {
+    if (!$ftpobj->makedir($folder)) {
       drupal_set_message(t('Unable to create directory at the Remote FTP server'), 'error', FALSE);
       return FALSE;
     }
@@ -762,14 +762,14 @@ function _wget_static_savetoftp($temp_dir, $wget_dir, $form_state, $timestamp) {
     }
     $filename = preg_replace('/[^\p{L}\p{N}\-\_]/', '', $form_state['values']['ftp_filename']);
     $filename = ($filename) ? $filename : $timestamp;
-    if (!$ftpobj->uploadFile($filepath, $folder . '/' . $filename . '.zip')) {
+    if (!$ftpobj->uploadfile($filepath, $folder . '/' . $filename . '.zip')) {
       drupal_set_message(t('Unable to upload compressed at the Remote FTP server'), 'error', FALSE);
       return FALSE;
     }
   }
   else {
     // *** Upload static content complete directory on remote server.
-    if (!$ftpobj->ftp_putAll($temp_dir . "/" . $wget_dir, $folder)) {
+    if (!$ftpobj->ftpputall($temp_dir . "/" . $wget_dir, $folder)) {
       drupal_set_message(t('Unable to upload files at the Remote FTP server'), 'error', FALSE);
       return FALSE;
     }
