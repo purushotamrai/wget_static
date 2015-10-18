@@ -93,10 +93,10 @@ class WgetStaticFTPClient {
    */
   public function uploadfile($filefrom, $fileto) {
     // *** Set the transfer mode.
-    $$asciiarray = array('txt', 'csv', 'html', 'css', 'zip');
+    $asciiarray = array('txt', 'csv', 'html', 'css', 'zip');
     $temp_array = explode('.', $filefrom);
     $extension = end($temp_array);
-    if (in_array($extension, $$asciiarray)) {
+    if (in_array($extension, $asciiarray)) {
       $mode = FTP_ASCII;
     }
     else {
