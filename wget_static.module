@@ -45,7 +45,7 @@ function wget_static_menu() {
     'description' => 'Provides configuration settings for Wget static form.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wget_static_config_form'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer site configuration'),
     'file' => 'wget_static.admin.inc',
   );
 

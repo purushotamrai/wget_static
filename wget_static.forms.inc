@@ -124,7 +124,7 @@ function _wget_static_node_contentform_ajax($form, $form_state) {
  */
 function _wget_static_getcontenttypes() {
   $types_oa = node_type_get_types();
-  foreach ($types_oa as $key => $o) {
+  foreach ($types_oa as $o) {
     $types[$o->type] = $o->name;
   }
   return $types;
@@ -514,7 +514,7 @@ function _wget_static_verify_nid_parameter($default) {
   if (is_numeric($default)) {
     $node = node_load($default);
     if ($node) {
-      return $default_node = array(
+      return array(
         'nid' => $node->nid,
         'title' => $node->title,
         'content_type' => $node->type,
@@ -679,7 +679,7 @@ function _wget_static_build_command($options, $url, $temp_dir, $wget_dir) {
   $wget = trim(shell_exec("which wget"));
   $wget = ($wget) ? $wget : variable_get('wget_static_command', '/usr/local/bin/wget');
   $cmd = $wget . " ";
-  foreach ($options as $key => $option) {
+  foreach ($options as $option) {
     if ($option['use']) {
       $cmd .= $option['cmd'] . " ";
     }
