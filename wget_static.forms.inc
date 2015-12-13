@@ -409,10 +409,14 @@ function _wget_static_final_settings(&$form, &$form_state) {
     '#title' => t('Save generated static HTML'),
     '#options' => array(
       'none' => t('Select'),
-      'ftp' => t('FTP'),
-      'webdav' => t('Webdav'),
     ),
   );
+
+  foreach (variable_get('wget_static_save_download', array('download' => 'download')) as $key => $value) {
+    if ($value) {
+      $form['wget_static_settings']['final']['#options'][$key] = ucfirst($key);
+    }
+  }
 
   $form['wget_static_settings']['download_file'] = array(
     '#type' => 'textfield',

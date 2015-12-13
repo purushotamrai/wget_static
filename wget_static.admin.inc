@@ -82,6 +82,19 @@ function wget_static_config_form($form, &$form_state) {
     ),
   );
 
+  $form['wget_static_save_download'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Wget Save/Download Option\'s Configuration'),
+    '#descriptions' => t('Selected Options would be available for users.'),
+    '#options' => array(
+      'download' => t('Download to Local'),
+      'ftp' => t('Save to FTP Server'),
+      'webdav' => t('Save to Webdav Server'),
+    ),
+    '#required' => TRUE,
+    '#default_value' => variable_get('wget_static_save_download', array('download')),
+  );
+
   $form['wget_static_enable_wget_log'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Wget debug mode'),
