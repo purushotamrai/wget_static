@@ -70,4 +70,5 @@ function wget_static_uninstall() {
   variable_del('wget_static_success_message');
   variable_del('wget_static_success_redirect');
   variable_del('wget_static_enable_wget_log');
+  variable_del('wget_static_save_download');
 }
