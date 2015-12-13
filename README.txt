@@ -23,6 +23,8 @@ location.
 Wget Static Module provides you handful of options for generation of static HTML
 as provided by default wget application also.
 
+New Feature: Save Static html to Webdav Server (With Two factor Authentication
+Support).
 
 REQUIREMENTS
 ------------
@@ -84,9 +86,11 @@ Wget Static Module comprises of 3 operations in sequential manner.
   Read about Wget options at: https://www.gnu.org/software/wget/manual/wget.html
 
 3- Save/Download Generated Static HTML
-  Wget Static Module provides you two options :
+  Wget Static Module provides you three options :
   a) Download Zip File
   b) Save files to FTP Server either decompressed or as compressed file.
+  c) Save files to Webdav Server either decompressed or as compressed file.
+  (Supports Two Factor Authentication).
 
 
 
@@ -123,7 +127,7 @@ SIMILAR MODULES
 Q: How Wget Static is Different?
 A: Wget static module has completely different architecture as it uses Wget
    Command for static html generation and also provides option to either
-   download the generated HTML or upload it to Remote FTP server.
+   download the generated HTML or upload it to Remote FTP/Webdav server.
 
 
 MAINTAINERS

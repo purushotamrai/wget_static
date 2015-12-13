@@ -408,11 +408,12 @@ function _wget_static_final_settings(&$form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Save generated static HTML'),
     '#options' => array(
-      'none' => t('What to do?'),
-      'download' => t('Download'),
-      'savetoftp' => t('Save to FTP'),
+      'none' => t('Select'),
+      'ftp' => t('FTP'),
+      'webdav' => t('Webdav'),
     ),
   );
+
   $form['wget_static_settings']['download_file'] = array(
     '#type' => 'textfield',
     '#maxlength' => 30,
@@ -437,7 +438,7 @@ function _wget_static_final_settings(&$form, &$form_state) {
     '#title' => t('FTP settings'),
     '#states' => array(
       'visible' => array(
-        ':input[name="final"]' => array('value' => 'savetoftp'),
+        ':input[name="final"]' => array('value' => 'ftp'),
       ),
     ),
   );
@@ -476,7 +477,126 @@ function _wget_static_final_settings(&$form, &$form_state) {
       ),
     ),
   );
-  $form['wget_static_settings']['ftp']['savetoftp'] = array(
+  $form['wget_static_settings']['ftp']['ftp'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  $form['wget_static_settings']['webdav'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Webdav settings'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="final"]' => array('value' => 'webdav'),
+      ),
+    ),
+  );
+  $form['wget_static_settings']['webdav']['protocol'] = array(
+    '#type' => 'select',
+    '#title' => t('Webdav Protocol'),
+    '#description' => t('Select Remote Webdav Server Protocol.'),
+    '#options' => array(
+      'http' => t('HTTP'),
+      'https' => t('HTTPS'),
+    ),
+  );
+
+  $form['wget_static_settings']['webdav']['host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Webdav Server Location'),
+    '#description' => t('Please exclude protocol http:// or https:// at beginning and trailing slashes (/) at the end.'),
+    '#element_validate' => array('_wget_static_validate_host'),
+  );
+  $form['wget_static_settings']['webdav']['username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Username'),
+  );
+  $form['wget_static_settings']['webdav']['password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Password'),
+  );
+  $form['wget_static_settings']['webdav']['location'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Remote Folder Name'),
+    '#description' => t('Folder name in which static html has to be saved on remote server. Any existing directory of the same name would be removed.'),
+  );
+  $form['wget_static_settings']['webdav']['compressed_file'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send as Compressed File on Webdav Server'),
+    '#default_value' => FALSE,
+    '#description' => t('Compressed files would be sent faster.'),
+  );
+  $form['wget_static_settings']['webdav']['webdav_filename'] = array(
+    '#type' => 'textfield',
+    '#maxlength' => 30,
+    '#title' => t('Name for compressed file'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="compressed_file"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+  $form['wget_static_settings']['webdav']['webdav_tfa'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Two Factor Authentication'),
+    '#default_value' => FALSE,
+  );
+  $form['wget_static_settings']['webdav']['tfa_data'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Two Factor Authentication Settings'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="webdav_tfa"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+  $form['wget_static_settings']['webdav']['tfa_data']['pem'] = array(
+    '#type' => 'managed_file',
+    '#title' => t('PEM/P12 File'),
+    '#description' => t('Accepts PEM/P12 file containing public and private key (containing passphrase)'),
+    '#upload_validators' => array(
+      'file_validate_extensions' => array('pem p12'),
+    ),
+  );
+  $form['wget_static_settings']['webdav']['tfa_data']['cert'] = array(
+    '#type' => 'managed_file',
+    '#title' => t('Cert File'),
+    '#description' => t('Accepts CERT file : public key'),
+    '#upload_validators' => array(
+      'file_validate_extensions' => array('crt'),
+    ),
+  );
+  $form['wget_static_settings']['webdav']['tfa_data']['passph'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Passphrase'),
+    '#description' => t('Enter Passphrase Required for Private Key'),
+  );
+
+  // Advanced Options.
+  $form['wget_static_settings']['webdav']['advanced_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced Options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['wget_static_settings']['webdav']['advanced_options']['auth'] = array(
+    '#type' => 'select',
+    '#title' => t('Authentication Method'),
+    '#options' => array(
+      'anyauth' => t('Any Authentication'),
+      'basic' => t('Basic'),
+      'digest' => t('Digest'),
+    ),
+  );
+  if (user_access('wget use supercmd')) {
+    $form['wget_static_settings']['webdav']['advanced_options']['curl'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Direct Curl Options'),
+      '#description' => t('The value will directly append to the curl command being executed. Please refer to curl documentation for valid options.'),
+    );
+  }
+  $form['wget_static_settings']['webdav']['webdav'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
   );
@@ -493,13 +613,13 @@ function _wget_static_validate_host($element, &$form_state, $form) {
     if (preg_match('#/$#', $element['#value'])) {
       form_error($element, t('Please ensure Host field does not end with "/"'));
     }
-    if (!@ftp_connect($element['#value'])) {
+    if (!@ftp_connect($element['#value']) && $form_state['values']['final'] == 'ftp') {
       form_error($element, t('Failed to connect to FTP server'));
     }
   }
   else {
-    if ($form_state['values']['final'] == 'savetoftp') {
-      form_error($element, t('FTP host field is requorired'));
+    if ($form_state['values']['final'] == 'ftp') {
+      form_error($element, t('FTP host field is required'));
     }
   }
 }
@@ -546,12 +666,18 @@ function wget_static_form_submit(&$form, &$form_state) {
       }
       break;
 
-    case 'savetoftp':
-      if (!_wget_static_savetoftp($temp_dir, $wget_dir, $form_state, $timestamp)) {
+    case 'ftp':
+      if (!_wget_static_ftp($temp_dir, $wget_dir, $form_state, $timestamp)) {
         file_unmanaged_delete_recursive($temp_dir . "/wget");
         return;
       }
       break;
+
+    case 'webdav':
+      if (!_wget_static_webdav($temp_dir, $wget_dir, $form_state, $timestamp)) {
+        file_unmanaged_delete_recursive($temp_dir . "/wget");
+        return;
+      }
   }
 
   if (variable_get('wget_static_success', 0)) {
@@ -735,7 +861,7 @@ function _wget_static_create_archive($temp_dir, $wget_dir, $filename, $timestamp
 /**
  * Uses ftp library to upload content on remote ftp server.
  */
-function _wget_static_savetoftp($temp_dir, $wget_dir, $form_state, $timestamp) {
+function _wget_static_ftp($temp_dir, $wget_dir, $form_state, $timestamp) {
   // *** Include the class.
   include_once 'ftp/ftp_class.php';
 
@@ -775,5 +901,107 @@ function _wget_static_savetoftp($temp_dir, $wget_dir, $form_state, $timestamp) {
     }
   }
 
+  return TRUE;
+}
+
+/**
+ * Uses webdav library to upload content on remote webdav server.
+ */
+function _wget_static_webdav($temp_dir, $wget_dir, $form_state, $timestamp) {
+  // *** Include the class.
+  include_once 'webdav/wget_static.webdav.inc';
+  $debug_mode = variable_get('wget_static_enable_wget_log', NULL);
+  $process = array();
+  $cert = "";
+  if ($form_state['values']['webdav_tfa']) {
+    $cert = _wget_static_webdav_cert_cmd($form_state);
+  }
+
+  $auth = "--" . $form_state['values']['auth'] . " ";
+  $user = "-u '" . $form_state['values']['username'] . ":" . $form_state['values']['password'] . "' ";
+  $http_code = "-sw '%{http_code}'";
+
+  // *** Make fresh directory for the country.
+  // Delete existing folder.
+  $folder = preg_replace("/[^\p{L}\p{N}\-\_]/", "", $form_state['values']['location']);
+  $req = _wget_static_webdav_delete_req_cmd($form_state, $folder);
+  $process['delete']['cmd'] = "curl " . $cert . $user . $req . $auth . $http_code;
+  $process['delete']['response'] = shell_exec($process['delete']['cmd']);
+  $process['delete']['code'] = _wget_static_parse_reponse($process['delete']['response']);
+  if (!(($process['delete']['code'] == 404) || preg_match("/\A20[0-9]/", $process['delete']['code']))) {
+    // Try Renaming index file.
+    $req = _wget_static_webdav_rename_cmd($form_state, $folder);
+    $process['rename']['cmd'] = "curl " . $cert . $user . $req . $auth . $http_code;
+    $process['rename']['response'] = shell_exec($process['rename']['cmd']);
+    $process['rename']['code'] = _fila_publish_parse_reponse($process['rename']['response']);
+    if (!(($process['rename']['code'] == 404) || preg_match("/\A20[0-9]/", $process['rename']['code']))) {
+      drupal_set_message(t('Error Deleting Existing folder, returned : @code', array('@code' => $process['rename']['code'])), 'warning', FALSE);
+    }
+    else {
+      // If rename successful.
+      $process['delete']['response'] = shell_exec($process['delete']['cmd']);
+      $process['delete']['code'] = _wget_static_parse_reponse($process['delete']['response']);
+    }
+  }
+
+  // Creating Directory.
+  $req = _wget_static_webdav_create_dir_cmd($form_state, $folder);
+  $process['create']['cmd'] = "curl " . $cert . $user . $req . $auth . $http_code;
+  $process['create']['response'] = shell_exec($process['create']['cmd']);
+  $process['create']['code'] = _wget_static_parse_reponse($process['create']['response']);
+  if (!(preg_match("/\A20[0-9]/", $process['create']['code']))) {
+    drupal_set_message(t('Error Creating new directory, returned : @code', array('@code' => $process['create']['code'])), 'warning', FALSE);
+    if ($debug_mode) {
+      drupal_set_message("<pre>" . print_r($process, TRUE) . "</pre>", 'warning', FALSE);
+    }
+    return FALSE;
+  }
+
+  // *** Upload static content on remote server.
+  if ($form_state['values']['compressed_file']) {
+    $filepath = _wget_static_create_archive($temp_dir, $wget_dir, $form_state['values']['download_file'], $timestamp, FALSE);
+    if (!$filepath) {
+      return FALSE;
+    }
+    $filename = preg_replace('/[^\p{L}\p{N}\-\_]/', '', $form_state['values']['webdav_filename']);
+    $filename = ($filename) ? $filename : $timestamp;
+    $des = $form_state['values']['protocol'] . "://" . $form_state['values']['host'] . "/" . $folder;
+    $req = _wget_static_webdav_upload_file_cmd($filepath, $des, $filename . '.zip');
+    $process['upload']['cmd'] = "curl " . $cert . $user . $req . $auth . $http_code;
+    $process['upload']['response'] = shell_exec($process['upload']['cmd']);
+    $process['upload']['code'] = _wget_static_parse_reponse($process['upload']['response']);
+    if (!(preg_match("/\A20[0-9]/", $process['upload']['code']))) {
+      drupal_set_message(t('Unable to upload compressed at the Remote Webdav server'), 'error', FALSE);
+      return FALSE;
+    }
+  }
+  else {
+    // *** Upload static content complete directory on remote server.
+    $d = dir($temp_dir . "/" . $wget_dir);
+    // Do this for each file in the directory.
+    $count = 0;
+    while ($file = $d->read()) {
+      // To prevent an infinite loop.
+      if ($file != "." && $file != "..") {
+        $des = $form_state['values']['protocol'] . "://" . $form_state['values']['host'] . "/" . $folder;
+        $req = _wget_static_webdav_upload_content_cmd($temp_dir . "/" . $wget_dir, $des, $file);
+        $process['upload']['cmd'] = "curl " . $cert . $user . $req . $auth . $http_code;
+        $process['upload']['response'] = shell_exec($process['upload']['cmd']);
+        $process['upload']['code'] = _wget_static_parse_reponse($process['upload']['response']);
+
+        // Check uploading of first file only.
+        if ($count == 0) {
+          if (!(preg_match("/\A20[0-9]/", $process['upload']['code']))) {
+            drupal_set_message(t('Error Uploading file, returned : @code', array('@code' => $process['upload']['code'])), 'warning', FALSE);
+            if ($debug_mode) {
+              drupal_set_message("<pre>" . print_r($process, TRUE) . "</pre>", 'warning', FALSE);
+            }
+            return FALSE;
+          }
+          $count++;
+        }
+      }
+    }
+  }
   return TRUE;
 }

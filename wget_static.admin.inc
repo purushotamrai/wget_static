@@ -81,6 +81,7 @@ function wget_static_config_form($form, &$form_state) {
       ),
     ),
   );
+
   $form['wget_static_enable_wget_log'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Wget debug mode'),
